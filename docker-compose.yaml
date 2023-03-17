@@ -1,0 +1,67 @@
+volumes:
+  postgres-hcb-data:
+    external: true
+  pg-admin:
+    external: true
+services:
+  postgres:
+    build:
+      context: ./relational-data
+      dockerfile: ./Dockerfile.dev
+    volumes:
+      - postgres-hcb-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_MULTIPLE_DATABASES:  hcb,users
+      - POSTGRES_USER: admin
+      - POSTGRES_PASSWORD: admin
+    ports:
+      - 15432:5432
+  pgadmin:
+    image: dpage/pgadmin4
+    volumes:
+      - pg-admin:/var/lib/pgadmin
+    ports:
+      - 8082:80
+    environment:
+      PGADMIN_DEFAULT_EMAIL: hotchickenbros@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_DISABLE_POSTFIX: 1
+  hcb:
+    build:
+      context: ./hcb
+      dockerfile: ./Dockerfile.dev
+    ports:
+      - 8000:8000
+    environment:
+      - DATABASE_URL: postgresql://admin:admin@postgres/hcb
+      - WAIT_HOSTS: postgres:5432
+      # - SIGNING_KEY=${SIGNING_KEY}
+    volumes:
+      - ./hcb:/app
+  users:
+    build:
+      context: ./users
+      dockerfile: ./Dockerfile.dev
+    ports:
+      - 8001:8000
+    environment:
+      - DATABASE_URL: postgresql://admin:admin@postgres/users
+      - WAIT_HOSTS: postgres:5432
+      # - SIGNING_KEY: ${SIGNING_KEY}
+    volumes:
+      - ./users:/app
+  # ghi:
+  #   image: node:lts-bullseye
+  #   command: /bin/bash run.sh
+  #   working_dir: /app
+  #   volumes:
+  #     - ./ghi:/app
+  #   ports:
+  #     - "3000:3000"
+  #   environment:
+  #     HOST_OS: ${OS}
+  #     NODE_ENV: development
+  #     HOST: "0.0.0.0"
+  #     PUBLIC_URL: http://localhost:3000
+  #     REACT_APP_HCB_API_HOST: http://localhost:8000
+  #     REACT_APP_USERS_API_HOST: http://localhost:8001
