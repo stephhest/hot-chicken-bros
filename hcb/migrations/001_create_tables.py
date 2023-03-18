@@ -1,70 +1,115 @@
-# steps = [
-#     [
-#         # "Up" SQL statement - Lyrics Table
-#         """
-#         CREATE TABLE lyrics (
-#             id SERIAL PRIMARY KEY NOT NULL,
-#             user_id INTEGER NOT NULL,
-#             user_input VARCHAR(8000) NOT NULL,
-#             ai_prompt VARCHAR(8000) NOT NULL,
-#             artist_name VARCHAR(70),
-#             song_name VARCHAR(200),
-#             user_output VARCHAR(8000) NOT NULL,
-#             posted BOOLEAN DEFAULT false,
-#             created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-#             posted_at TIMESTAMP
-#         );
-#         """,
-#         # "Down" SQL statement - Lyrics Table
-#         """
-#         DROP TABLE lyrics;
-#         """,
-#     ],
-#     [
-#         # "Up" SQL statement - Comments Table
-#         """
-#         CREATE TABLE comments (
-#             id SERIAL PRIMARY KEY NOT NULL,
-#             comment_content VARCHAR(8000) NOT NULL,
-#             user_id INTEGER NOT NULL,
-#             lyrics_id INTEGER REFERENCES lyrics(id) ON DELETE CASCADE,
-#             created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-#             modified_at TIMESTAMP
-#         );
-#         """,
-#         # "Down" SQL statement - Comments Table
-#         """
-#         DROP TABLE comments;
-#         """,
-#     ],
-#     [
-#         # "Up" SQL statement - Likes Table
-#         """
-#         CREATE TABLE lyrics_likes (
-#             id SERIAL PRIMARY KEY NOT NULL,
-#             user_id INTEGER NOT NULL,
-#             lyrics_id INTEGER NOT NULL REFERENCES lyrics(id) ON DELETE CASCADE,
-#             created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-#         );
-#         """,
-#         # "Down" SQL statement - Likes Table
-#         """
-#         DROP TABLE likes;
-#         """,
-#     ],
-#     [
-#         # "Up" SQL statement - Likes Table
-#         """
-#         CREATE TABLE comment_likes (
-#             id SERIAL PRIMARY KEY NOT NULL,
-#             user_id INTEGER NOT NULL,
-#             comment_id INTEGER NOT NULL REFERENCES comments(id) ON DELETE CASCADE,
-#             created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-#         );
-#         """,
-#         # "Down" SQL statement - Likes Table
-#         """
-#         DROP TABLE likes;
-#         """,
-#     ],
-# ]
+steps = [
+    [
+        # "Up" SQL statement - Menu Items Table
+        """
+        CREATE TABLE menu_items (
+            id SERIAL PRIMARY KEY NOT NULL,
+            name VARCHAR(100) NOT NULL,
+            description VARCHAR(250),
+            price DECIMAL(5,2) NOT NULL DEFAULT 0.00,
+            category VARCHAR(50),
+            available BOOLEAN NOT NULL DEFAULT TRUE
+        );
+        """,
+        # "Down" SQL statement - Menu Items Table
+        """
+        DROP TABLE menu_items;
+        """,
+    ],
+    [
+        # "Up" SQL statement - Heat Levels Table
+        """
+        CREATE TABLE heat_levels (
+            id SERIAL PRIMARY KEY NOT NULL,
+            name VARCHAR(50) NOT NULL,
+            description VARCHAR(250),
+            score INT NOT NULL
+        );
+        """,
+        # "Down" SQL statement - Heat Levels Table
+        """
+        DROP TABLE heat_levels;
+        """,
+    ],
+    [
+        # "Up" SQL statement - Events Table
+        """
+        CREATE TABLE events (
+            id SERIAL PRIMARY KEY NOT NULL,
+            title VARCHAR(100) NOT NULL,
+            location VARCHAR(100) NOT NULL,
+            date DATE NOT NULL,
+            start_time TIME NOT NULL,
+            end_time TIME NOT NULL
+        );
+        """,
+        # "Down" SQL statement - Events Table
+        """
+        DROP TABLE events;
+        """,
+    ],
+    [
+        # "Up" SQL statement - Pickup Slots Table
+        """
+        CREATE TABLE pickup_slots (
+            id SERIAL PRIMARY KEY NOT NULL,
+            event_id INT NOT NULL REFERENCES events(id) ON DELETE CASCADE,
+            time TIME NOT NULL,
+            max_mains INT NOT NULL,
+            ordered_mains INT NOT NULL DEFAULT 0
+        );
+        """,
+        # "Down" SQL statement - Pickup Slots Table
+        """
+        DROP TABLE pickup_slots;
+        """,
+    ],
+    [
+        # "Up" SQL statement - Carts Table
+        """
+        CREATE TABLE carts (
+            id SERIAL PRIMARY KEY NOT NULL,
+            status VARCHAR(50) NOT NULL DEFAULT 'In Progress',
+            total DECIMAL(5,2) NOT NULL DEFAULT 0.00
+        );
+        """,
+        # "Down" SQL statement - Carts Table
+        """
+        DROP TABLE carts;
+        """,
+    ],
+    [
+        # "Up" SQL statement - Order Items Table
+        """
+        CREATE TABLE order_items (
+            id SERIAL PRIMARY KEY NOT NULL,
+            cart_id INT NOT NULL REFERENCES carts(id) ON DELETE CASCADE,
+            menu_item_id INT NOT NULL REFERENCES menu_items(id),
+            heat_level_id INT NOT NULL REFERENCES heat_levels(id),
+            quantity INT NOT NULL DEFAULT 1
+        );
+        """,
+        # "Down" SQL statement - Order Items Table
+        """
+        DROP TABLE order_items;
+        """,
+    ],
+    [
+        # "Up" SQL statement - Orders Table
+        """
+        CREATE TABLE orders (
+            id SERIAL PRIMARY KEY NOT NULL,
+            user_id INT NOT NULL,
+            cart_id INT NOT NULL REFERENCES carts(id),
+            pickup_slot_id INT NOT NULL REFERENCES pickup_slots(id),
+            event_id INT NOT NULL REFERENCES events(id) ON DELETE CASCADE,
+            order_status VARCHAR(50) NOT NULL DEFAULT 'Placed',
+            payment_status VARCHAR(50) NOT NULL DEFAULT 'Pending'
+        );
+        """,
+        # "Down" SQL statement - Orders Table
+        """
+        DROP TABLE orders;
+        """,
+    ],
+]

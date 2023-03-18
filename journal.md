@@ -10,7 +10,12 @@ On the second tab, "Connection", add the "Host name/address", "Username", and th
 
 
 ## React
-
 Use the following for API calls from the frontend:
+```javascript
   const url = `${process.env.REACT_APP_USERS_API_HOST}/api/users`;
   const response = await fetch(url);
+```
+
+## Docker
+Use the following to build containers:
+  DOCKER_DEFAULT_PLATFORM=linux/amd64 docker-compose build
