@@ -79,9 +79,9 @@ steps = [
         """,
     ],
     [
-        # "Up" SQL statement - Order Items Table
+        # "Up" SQL statement - Cart Items Table
         """
-        CREATE TABLE order_items (
+        CREATE TABLE cart_items (
             id SERIAL PRIMARY KEY NOT NULL,
             cart_id INT NOT NULL REFERENCES carts(id) ON DELETE CASCADE,
             menu_item_id INT NOT NULL REFERENCES menu_items(id),
@@ -89,9 +89,9 @@ steps = [
             quantity INT NOT NULL DEFAULT 1
         );
         """,
-        # "Down" SQL statement - Order Items Table
+        # "Down" SQL statement - Cart Items Table
         """
-        DROP TABLE order_items;
+        DROP TABLE cart_items;
         """,
     ],
     [
@@ -99,10 +99,14 @@ steps = [
         """
         CREATE TABLE orders (
             id SERIAL PRIMARY KEY NOT NULL,
-            user_id INT NOT NULL,
+            existing_user_id INT,
+            pickup_name VARCHAR(100) NOT NULL,
+            customer_email VARCHAR(320) NOT NULL,
+            customer_phone VARCHAR(20) NOT NULL,
+            customer_venmo VARCHAR(50),
             cart_id INT NOT NULL REFERENCES carts(id),
-            pickup_slot_id INT NOT NULL REFERENCES pickup_slots(id),
-            event_id INT NOT NULL REFERENCES events(id) ON DELETE CASCADE,
+            event_id INT REFERENCES events(id) ON DELETE CASCADE,
+            pickup_slot_id INT REFERENCES pickup_slots(id),
             order_status VARCHAR(50) NOT NULL DEFAULT 'Placed',
             payment_status VARCHAR(50) NOT NULL DEFAULT 'Pending'
         );
