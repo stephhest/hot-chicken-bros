@@ -1,8 +1,17 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import os
+from authenticator import authenticator
+from routers import users
+
 
 app = FastAPI()
+
+# FastAPI router with login, logout handlers
+app.inclue_router(authenticator.router)
+
+# FastAPI router with CRUD endpoints for users
+app.include_router(users.router)
 
 app.add_middleware(
     CORSMiddleware,
@@ -13,7 +22,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 @app.get("/api/launch-details")
 def launch_details():

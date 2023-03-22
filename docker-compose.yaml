@@ -11,9 +11,9 @@ services:
     volumes:
       - postgres-hcb-data:/var/lib/postgresql/data
     environment:
-      - "POSTGRES_MULTIPLE_DATABASES=hcb,users"
-      - "POSTGRES_USER=admin"
-      - "POSTGRES_PASSWORD=admin"
+      POSTGRES_MULTIPLE_DATABASES: hcb,users
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
     ports:
       - 15432:5432
   pgadmin:
@@ -23,31 +23,31 @@ services:
     ports:
       - 8082:80
     environment:
-      - "PGADMIN_DEFAULT_EMAIL=hotchickenbros@gmail.com"
-      - "PGADMIN_DEFAULT_PASSWORD=admin"
-      - "PGADMIN_DISABLE_POSTFIX=1"
+      PGADMIN_DEFAULT_EMAIL: hotchickenbros@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_DISABLE_POSTFIX: 1
   hcb:
     build:
       context: ./hcb
-      dockerfile: ./Dockerfile.dev
+      dockerfile: Dockerfile.dev
     ports:
       - 8000:8000
     environment:
-      - "DATABASE_URL=postgresql://admin:admin@postgres/hcb"
-      - "WAIT_HOSTS=postgres:5432"
-      # - "SIGNING_KEY=${SIGNING_KEY}"
+        DATABASE_URL: postgresql://admin:admin@postgres/hcb
+        WAIT_HOSTS: postgres:5432
+        SIGNING_KEY: ${SIGNING_KEY}
     volumes:
       - ./hcb:/app
   users:
     build:
       context: ./users
-      dockerfile: ./Dockerfile.dev
+      dockerfile: Dockerfile.dev
     ports:
       - 8001:8000
     environment:
-      - "DATABASE_URL=postgresql://admin:admin@postgres/users"
-      - "WAIT_HOSTS=postgres:5432"
-      # - "SIGNING_KEY=${SIGNING_KEY}"
+        DATABASE_URL: postgresql://admin:admin@postgres/users
+        WAIT_HOSTS: postgres:5432
+        SIGNING_KEY: ${SIGNING_KEY}
     volumes:
       - ./users:/app
 
