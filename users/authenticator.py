@@ -19,24 +19,26 @@ class MyAuthenticator(Authenticator):
         self,
         repo: UserQueries = Depends()
     ):
-        # Return the users. That's it.
+        # Return the repo. That's it.
         return repo
 
-    def get_hashed_password(self, user: dict):
+    def get_hashed_password(self, user: UserOut):
         # Return encrypted password from user object
-        return user["hashed_password"]
+        return user.hashed_password
+        # return user["hashed_password"]
 
-    def get_account_data_for_cookie(self, user: dict):
+    def get_account_data_for_cookie(self, user: UserOut):
         # Return data for the cookie (two values)
-        return user["email"], UserOut(
-            id=user["id"],
-            email=user["email"],
-            pickup_name=user["pickup_name"],
-            phone_number=user["phone_number"],
-            venmo=user["venmo"],
-            role=user["role"],
-            hashed_password=user["hashed_password"]
-        )
+        return user.email, UserOut(**user.dict())
+        # return user["email"], UserOut(
+        #     id=user["id"],
+        #     email=user["email"],
+        #     pickup_name=user["pickup_name"],
+        #     phone_number=user["phone_number"],
+        #     venmo=user["venmo"],
+        #     role=user["role"],
+        #     hashed_password=user["hashed_password"]
+        # )
 
 
 # set standard expiration time to two hours

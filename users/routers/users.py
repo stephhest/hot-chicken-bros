@@ -23,7 +23,8 @@ router = APIRouter()
 @router.get("/token", response_model=Union[UserToken, None])
 async def get_token(
     request: Request,
-    user: dict = Depends(authenticator.try_get_current_account_data),
+    # user: dict = Depends(authenticator.try_get_current_account_data),
+    user: UserOut = Depends(authenticator.try_get_current_account_data)
 ):
     if user and authenticator.cookie_name in request.cookies:
         return {
@@ -45,9 +46,10 @@ async def create_user(
     token = await authenticator.login(response, request, form, repo)
     return UserToken(user=user, **token.dict())
 
-@router.get("/api/users/current", response_model=Union[dict, None])
+@router.get("/api/users/current", response_model=Union[UserOut, None])
 def get_current_user(
-    user: dict = Depends(authenticator.get_current_account_data),
+    # user: dict = Depends(authenticator.get_current_account_data),
+    user: UserOut = Depends(authenticator.get_current_account_data),
 ):
     return user
 
@@ -59,10 +61,12 @@ def get_users(repo: UserQueries = Depends()):
 def update_user(
     input: UserIn,
     user: dict = Depends(authenticator.get_current_account_data),
+    # user: UserOut = Depends(authenticator.get_current_account_data),
     repo: UserQueries = Depends()
 ):
     if user:
         user_id = user["id"]
+        # user_id = user.id
         hashed_password = authenticator.hash_password(input.password)
         return repo.update(user_id, input, hashed_password)
 
@@ -70,8 +74,10 @@ def update_user(
 @router.delete("/api/users/current", response_model=Union[bool, Error])
 def delete_user(
     user: dict = Depends(authenticator.get_current_account_data),
+    # user: UserOut = Depends(authenticator.get_current_account_data),
     repo: UserQueries = Depends()
 ):
     if user:
         user_id = user["id"]
+        # user_id = user.id
         return repo.delete(user_id)

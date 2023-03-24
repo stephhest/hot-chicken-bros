@@ -33,7 +33,7 @@ class UserOut(BaseModel):
     pickup_name: str
     phone_number: str
     venmo: str
-    role: Optional[str]
+    # role: Optional[str]
     hashed_password: str
 
 class UserToken(Token):

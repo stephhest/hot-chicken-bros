@@ -13,61 +13,71 @@ class UserQueries(BaseModel):
         try:
             with pool.connection() as conn:
                 with conn.cursor() as cur:
-                    cur.execute(
+                    result = cur.execute(
                         """
                         SELECT id
                         , email
                         , pickup_name
                         , phone_number
                         , venmo
-                        , role
                         , hashed_password
                         FROM users
                         WHERE email = %s;
                         """,
                         [email]
                     )
-                    row = cur.fetchone()
-                    if row:
-                        record = {}
-                        for i, column in enumerate(cur.description):
-                            record[column.name] = row[i]
-                        return record
+                    # row = cur.fetchone()
+                    # if row:
+                    #     record = {}
+                    #     for i, column in enumerate(cur.description):
+                    #         record[column.name] = row[i]
+                    #     return record
+                    # else:
+                    #     return Error(message="User not found")
+                    record = result.fetchone()
+                    if record:
+                        return self.record_to_user_out(record)
                     else:
                         return Error(message="User not found")
         except Exception as e:
-            print(e)
+            print("Error in repo.get(): ", e)
             return Error(message="Error getting user")
 
     def get_all(self) -> Union[List[UserOut], Error]:
         try:
             with pool.connection() as conn:
                 with conn.cursor() as cur:
-                    cur.execute(
+                    results = cur.execute(
                         """
                         SELECT id
                         , email
                         , pickup_name
                         , phone_number
                         , venmo
-                        , role
                         , hashed_password
                         FROM users
                         ORDER BY id;
                         """
                     )
-                    results = []
-                    for row in cur.fetchall():
-                        record = {}
-                        for i, column in enumerate(cur.description):
-                            record[column.name] = row[i]
-                        results.append(record)
-                    return results
+                    # results = []
+                    # for row in cur.fetchall():
+                    #     record = {}
+                    #     for i, column in enumerate(cur.description):
+                    #         record[column.name] = row[i]
+                    #     results.append(record)
+                    # return results
+                    return [
+                        self.record_to_user_out(record) for record in results
+                    ]
         except Exception as e:
-            print(e)
+            print("Error in repo.get_all(): ", e)
             return Error(message="Error getting users")
 
-    def create(self, user: UserIn, hashed_password: str) -> UserOut:
+    def create(
+        self,
+        user: UserIn,
+        hashed_password: str
+    ) -> Union[UserOut, Error]:
         try:
             with pool.connection() as conn:
                 with conn.cursor() as cur:
@@ -91,8 +101,8 @@ class UserQueries(BaseModel):
                         ],
                     )
                     id = cur.fetchone()[0]
-                    print("Created user with id: ", id)
-                    user = UserOut(
+                    print("New User Created with ID: ", id)
+                    return UserOut(
                         id=id,
                         email=user.email,
                         pickup_name=user.pickup_name,
@@ -100,13 +110,16 @@ class UserQueries(BaseModel):
                         venmo=user.venmo,
                         hashed_password=hashed_password
                     )
-                    print("In create function, type of user: ", type(user))
-                    return user
         except Exception as e:
-            print(e)
-            return {"message": "create did not work"}
+            print("Error in repo.create(): ", e)
+            return Error(message="create did not work")
 
-    def update(self, user_id: int, input: UserIn, hashed_password: str) -> Union[bool, Error]:
+    def update(
+        self,
+        user_id: int,
+        input: UserIn,
+        hashed_password: str
+    ) -> Union[bool, Error]:
         try:
             with pool.connection() as conn:
                 with conn.cursor() as cur:
@@ -138,7 +151,7 @@ class UserQueries(BaseModel):
                         print("Nothing to update.")
                         return False
         except Exception as e:
-            print(e)
+            print("Error in repo.update(): ", e)
             return Error(message="Error updating user")
 
     def delete(self, user_id: int) -> Union[bool, Error]:
@@ -160,5 +173,15 @@ class UserQueries(BaseModel):
                         print("Nothing to delete.")
                         return False
         except Exception as e:
-            print(e)
+            print("Error in repo.delete(): ", e)
             return Error(message="Error deleting user")
+
+    def record_to_user_out(self, record: dict) -> UserOut:
+        return UserOut(
+            id=record[0],
+            email=record[1],
+            pickup_name=record[2],
+            phone_number=record[3],
+            venmo=record[4],
+            hashed_password=record[5]
+        )
