@@ -3,7 +3,7 @@ from fastapi import Depends
 from jwtdown_fastapi.authentication import Authenticator
 from datetime import timedelta
 from queries.users import UserQueries
-from models import UserOut, UserOutWithPassword
+from models import UserOut
 
 
 class MyAuthenticator(Authenticator):
@@ -15,17 +15,28 @@ class MyAuthenticator(Authenticator):
         # Use your repo to get the user based on email
         return repo.get(email)
 
-    def get_account_getter(self, users: UserQueries = Depends()):
+    def get_account_getter(
+        self,
+        repo: UserQueries = Depends()
+    ):
         # Return the users. That's it.
-        return users
+        return repo
 
-    def get_hashed_password(self, user: UserOutWithPassword):
+    def get_hashed_password(self, user: dict):
         # Return encrypted password from user object
-        return user.hashed_password
+        return user["hashed_password"]
 
-    def get_account_data_for_cookie(self, user: UserOut):
+    def get_account_data_for_cookie(self, user: dict):
         # Return data for the cookie (two values)
-        return user.email, UserOut(**user.dict())
+        return user["email"], UserOut(
+            id=user["id"],
+            email=user["email"],
+            pickup_name=user["pickup_name"],
+            phone_number=user["phone_number"],
+            venmo=user["venmo"],
+            role=user["role"],
+            hashed_password=user["hashed_password"]
+        )
 
 
 # set standard expiration time to two hours

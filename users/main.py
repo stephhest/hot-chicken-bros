@@ -7,11 +7,12 @@ from routers import users
 
 app = FastAPI()
 
-# FastAPI router with login, logout handlers
-app.inclue_router(authenticator.router)
-
 # FastAPI router with CRUD endpoints for users
 app.include_router(users.router)
+
+# FastAPI router with login, logout handlers
+app.include_router(authenticator.router)
+
 
 app.add_middleware(
     CORSMiddleware,

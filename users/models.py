@@ -21,11 +21,10 @@ class UserIn(BaseModel):
     password: str
     pickup_name: str
     phone_number: str
-    venmo: Optional(str)
-    role: Optional(str)
+    venmo: Optional[str]
 
 class LoginForm(BaseModel):
-    email: str
+    username: str
     password: str
 
 class UserOut(BaseModel):
@@ -33,12 +32,8 @@ class UserOut(BaseModel):
     email: str
     pickup_name: str
     phone_number: str
-    venmo: Optional(str)
-    role: str
-    created_at: datetime
-    password_last_modified: Optional(datetime)
-
-class UserOutWithPassword(UserOut):
+    venmo: str
+    role: Optional[str]
     hashed_password: str
 
 class UserToken(Token):

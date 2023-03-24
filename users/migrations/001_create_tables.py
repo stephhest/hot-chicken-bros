@@ -11,7 +11,7 @@ steps = [
             venmo VARCHAR(50),
             role VARCHAR(50) NOT NULL DEFAULT 'User',
             created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            password_last_modified TIMESTAMP
+            last_modified TIMESTAMP
         );
         """,
         # "Down" SQL statement
